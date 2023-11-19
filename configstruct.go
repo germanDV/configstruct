@@ -20,8 +20,6 @@ import (
 //
 // Supported types are: string, int, bool and time.Duration.
 // Nested structs are not supported.
-//
-// TODO: Run this only sync.Once
 func Parse[T any](configStruct *T) error {
 	v := reflect.TypeOf(*configStruct)
 
