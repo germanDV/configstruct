@@ -7,6 +7,16 @@ import (
 	"time"
 )
 
+var multilineVar1 = `-----BEGIN PUBLIC KEY-----
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEUOu0Nc9/EiVSyBKyfvv38MlteRWA
++6S8jpRIOC2eMn2kYSv1RCc7uejvLVc0EYn2spObZjsMv4qvNz0XxYduDQ==
+-----END PUBLIC KEY-----`
+
+var multilineVar2 = `-----BEGIN PRIVATE KEY-----
+MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEUOu0Nc9/EiVSyBKyfvv38MlteRWA
++6S8jpRIOC2eMn2kYSv1RCc7uejvLVc0EYn2spObZjsMv4qvNz0XxYduDQ==
+-----END PRIVATE KEY-----`
+
 func TestLoadAndParse(t *testing.T) {
 	t.Run("file_in_same_dir", func(t *testing.T) {
 		cleanEnv()
@@ -82,6 +92,9 @@ func TestLoadAndParse(t *testing.T) {
 			SingleQuotes string        `env:"SINGLE_QUOTES"`
 			Timeout      time.Duration `env:"TIMEOUT"`
 			SomeOther    string        `env:"SOME_OTHER" default:"hello"`
+			PublKey      string        `env:"PUBLIC_KEY"`
+			PrivKey      string        `env:"PRIVATE_KEY"`
+			Port         int           `env:"PORT"`
 		}
 		myConfig := MyConfig{}
 
@@ -115,6 +128,18 @@ func TestLoadAndParse(t *testing.T) {
 		// The default should be used as it is not set in the env or the file
 		if myConfig.SomeOther != "hello" {
 			t.Errorf("SomeOther should be hello, got %s", myConfig.SomeOther)
+		}
+
+		if myConfig.PublKey != multilineVar1 {
+			t.Errorf("Error parsing multiline value for public key, got %s", myConfig.PublKey)
+		}
+
+		if myConfig.PrivKey != multilineVar2 {
+			t.Errorf("Error parsing multiline value for private key, got %s", myConfig.PrivKey)
+		}
+
+		if myConfig.Port != 5432 {
+			t.Errorf("Port should be 5432, got %d", myConfig.Port)
 		}
 	})
 }

@@ -93,6 +93,10 @@ func getRootPath(path string) (string, error) {
 
 // setFromFile parses env file and sets values to the environment, without overwriting existing ones.
 func setFromFile(f *os.File) error {
+	multiline := false
+	multilineKey := ""
+	multilineVal := ""
+
 	scanner := bufio.NewScanner(f)
 	scanner.Split(bufio.ScanLines)
 	for scanner.Scan() {
@@ -101,13 +105,31 @@ func setFromFile(f *os.File) error {
 			continue
 		}
 
+		if multiline {
+			multilineVal += "\n" + line
+			if strings.HasSuffix(multilineVal, `"`) {
+				os.Setenv(multilineKey, strings.TrimSuffix(multilineVal, `"`))
+				multilineKey = ""
+				multilineVal = ""
+				multiline = false
+			}
+			continue
+		}
+
 		parts := strings.SplitN(line, "=", 2)
 		if len(parts) != 2 {
 			return fmt.Errorf("invalid line format: %s", line)
 		}
-		key := strings.TrimSpace(parts[0])
 
+		key := strings.TrimSpace(parts[0])
 		val := strings.TrimSpace(parts[1])
+
+		if strings.HasPrefix(val, `"`) && !strings.HasSuffix(val, `"`) {
+			multiline = true
+			multilineKey = key
+			multilineVal = strings.TrimPrefix(val, `"`)
+		}
+
 		val = strings.Trim(val, `"`)
 		val = strings.Trim(val, `'`)
 
