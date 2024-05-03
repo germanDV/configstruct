@@ -15,7 +15,9 @@ The package exposes one function:
 
 ## ENV files
 
-The path to the env file must be relative to the _root_ of the project.
+The path to the env file can be absolute, in such case, it is loaded as is.
+
+It can also be relative, in which case it must be relative to the _root_ of the project.
 By _root_ we mean the directory where a go.mod file is present.
 The package will start at the current directory and walk upwards until it finds the root directory.
 
